@@ -14,7 +14,9 @@ import json
 from PIL import Image
 import io
 
-st.title("🐶🐱🐴 VGG16 이미지 분류기")
+st.title("EffiB0 이미지 분류기")
+st.write("이 이미지를 분류기는 고양이하고 한옥주택를 분류해주는 분류기 입니다.")
+st.image(["물방울.png","원추리꽃.png"],caption=["물방울","원추리꽃"], width=300)
 
 # 모델 및 클래스 불러오기
 @st.cache_resource
@@ -45,11 +47,18 @@ if uploaded_file is not None:
     img_array = preprocess_input(img_array)
     img_array = np.expand_dims(img_array, axis=0)
 
-    # 예측
+     # 예측
     predictions = model.predict(img_array)
-    predicted_class = class_names[np.argmax(predictions)]
+    pred_probs = predictions[0]
+    max_prob = np.max(pred_probs)
+    predicted_class = class_names[np.argmax(pred_probs)]
 
-    st.markdown(f"### ✅ 예측 결과: **{predicted_class}**")
+    # 출력
+    if max_prob <= 0.6:
+        st.markdown("## ⚠️ 학습한 클래스가 아니거나, 분류를 실패했습니다.")
+    else:
+        st.markdown(f"### ✅ 예측 결과: **{predicted_class}**")
+
     st.markdown("### 🔢 클래스별 확률")
-    for i, prob in enumerate(predictions[0]):
+    for i, prob in enumerate(pred_probs):
         st.write(f"{class_names[i]}: {prob:.4f}")
